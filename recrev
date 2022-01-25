@@ -81,14 +81,14 @@ def recrev(self, date: str, net_paid_monthly: int, arpw: int, tw: int, rev: int)
                 global arr
                 arr = mrr * 12
 
-#Create X and Y-axis for plotting recurring revenue
-x = np.array(["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"])
-y = np.array([5000, 15000, 25000, 35000, 45000, 55000, 65000, 75000, 85000, 95000, 105000, 115000])
+            #Create X and Y-axis for plotting recurring revenue
+            x = np.array([month])
+            y = np.array([mrr])
 
-#Plot recurring revenue
-plt.plot(x,y, marker = "*")
-plt.show(mrr)
-plt.title("SaaS Co - Recurring Revenue", loc = "center")
-plt.xlabel("Time")
-plt.ylabel("Revenue In Cents")
+            #Plot recurring revenue
+            plt.plot(x,y, marker = "*")
+            plt.show()
+            plt.title("Airtable - Recurring Revenue", loc = "center")
+            plt.xlabel("Time")
+            plt.ylabel("Revenue In Cents")
 
