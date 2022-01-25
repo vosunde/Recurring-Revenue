@@ -91,13 +91,3 @@ plt.show(mrr)
 plt.title("SaaS Co - Recurring Revenue", loc = "center")
 plt.xlabel("Time")
 plt.ylabel("Revenue In Cents")
-
-
-
-
-
-if __name__ == "__main__":
-    churn()
-    recrev()
-    plt.plot()
-    plt.show()
