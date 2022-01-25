@@ -1,0 +1,103 @@
+#Importing calender months
+from calendar import month
+
+#Importing List type
+from typing import List
+
+#Importing datetime module
+import datetime
+
+#Importing Numpy
+import numpy as np
+
+#Importing matplotlib
+import matplotlib.pyplot as plt
+
+#Importing CSV reader
+from csv import reader
+
+#Importing Pandas library
+import pandas as pd
+
+#Creating the dataframe
+df = pd.read_csv("c:/Users/Gbovo/Desktop/data_science_exercise/airtable_ds_assignment_v6/airtable_ds_assignment_v6/data/invoices.csv")
+
+#Skip first line as header, then iterate over the remaining rows in invoices file
+with open("c:/Users/Gbovo/Desktop/data_science_exercise/airtable_ds_assignment_v6/airtable_ds_assignment_v6/data/invoices.csv", "r") as read_obj:
+    csv_invoices = reader(read_obj)
+    header = next(csv_invoices)
+
+#Function to calculate churn from workspaces
+def churn(self, cum_paid_in_cents: List[int], cum_cost_in_cents: int, cum_paid_in_credits_in_cents: int, exclude: List[List]) -> int:
+    #Iterate through rows after header in invoices file
+    if header != None:
+        for row in csv_invoices:
+            #Filter for all renewal or final invoices for workspaces billed for the previous 28 days. Skip initial invoices as there is no prior billing period
+            if row[2] == "renewal" or row[2] == "final":
+                cum_cost_in_cents += row[4]
+                cum_paid_in_credits_in_cents += row[5]
+                
+                #Then calculate the cumulative non-credit payments made for those workspaces
+                for row[3] in csv_invoices:
+                    cum_paid_in_cents = [(row[4] - row[5])]
+        
+            #Iterate through cumulative paid in cents to determine the workspaces that have paid less than $10 
+            for cust in range(len(cum_paid_in_cents)):
+                if cust < 10:
+                    exclude.append(cum_paid_in_cents[cust])
+
+            #Calculate Net paid in cents
+            for net in cum_paid_in_cents:
+                global net_paid_in_cents
+                net_paid_in_cents = int(cum_paid_in_cents[net] - exclude[net])
+
+#Function to calculate monthly and annual recurring revenue, excluding churn
+def recrev(self, date: str, net_paid_monthly: int, arpw: int, tw: int, rev: int) -> int:
+    #Iterate through rows after header in invoices file
+    if header != None:
+        for row in csv_invoices:
+            #Filter dates in months and years
+            for date in datetime.datetime(row[1]):
+                global month
+                global year
+                month = date.strftime("%B")
+                year = date.strftime("%Y")
+
+            #Filter net revenue by month (excluding churn)
+            for rev in month:
+                global monthly
+                monthly = df.groupby([month, year])
+                net_paid_monthly = [net_paid_in_cents[monthly]]
+                #Calculate Average revenue per workspace(arpw) as net paid monthly divided by total workspaces(tw)
+                tw += len(df.groupby([row[3]]))
+                arpw = [net_paid_monthly[monthly] / tw[monthly]]
+                
+                #Calculate MRR as average revenue per workspace multiplied by total workspaces per month
+                global mrr
+                mrr = [arpw[monthly]] * [tw[monthly]]
+            
+            #Calculate ARR as MRR * 12
+            for rev in year:
+                global arr
+                arr = mrr * 12
+
+#Create X and Y-axis for plotting recurring revenue
+x = np.array(["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"])
+y = np.array([5000, 15000, 25000, 35000, 45000, 55000, 65000, 75000, 85000, 95000, 105000, 115000])
+
+#Plot recurring revenue
+plt.plot(x,y, marker = "*")
+plt.show(mrr)
+plt.title("SaaS Co - Recurring Revenue", loc = "center")
+plt.xlabel("Time")
+plt.ylabel("Revenue In Cents")
+
+
+
+
+
+if __name__ == "__main__":
+    churn()
+    recrev()
+    plt.plot()
+    plt.show()
